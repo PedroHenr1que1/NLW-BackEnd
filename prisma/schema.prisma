@@ -30,6 +30,8 @@ model Participant {
   guesses Guess[]
   pool    Pool    @relation(fields: [poolId], references: [id])
   user    User?   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, poolId])
 }
 
 model User {
@@ -39,8 +41,8 @@ model User {
   avatarUrl String?
   createdAt DateTime @default(now())
 
-  participants Participant[]
-  Pool         Pool[]
+  participatingAt Participant[]
+  ownPools        Pool[]
 }
 
 model Game {
