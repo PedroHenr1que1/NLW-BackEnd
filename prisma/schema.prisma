@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Pool {
+  id        String   @id @default(uuid())
+  title     String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  ownerId   String?
+
+  participants Participant[]
+  owner        User?         @relation(fields: [ownerId], references: [id])
+}
+
+model Participant {
+  id     String @id @default(uuid())
+  userId String
+  poolId String
+
+  guesses Guess[]
+  pool    Pool    @relation(fields: [poolId], references: [id])
+  user    User?   @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  participants Participant[]
+  Pool         Pool[]
+}
+
+model Game {
+  id                   String   @id @default(uuid())
+  date                 DateTime
+  firstTeamCountryCode String
+  secondTeamCountrCode String
+
+  guesses Guess[]
+}
+
+model Guess {
+  id               String   @id @default(uuid())
+  firstTeamPoints  Int
+  secondTeamPoints Int
+  createdAt        DateTime @default(now())
+  gameId           String
+  participantId    String
+
+  participant Participant @relation(fields: [participantId], references: [id])
+  game        Game        @relation(fields: [gameId], references: [id])
+}
